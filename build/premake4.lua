@@ -42,5 +42,6 @@ end
 
 configuration {}
 
+include "../01.CreateDevice"
 include "../MinTriangle"
 

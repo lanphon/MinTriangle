@@ -199,3 +199,4 @@ void D3D11Manager::Render()
     // •`‰æÏ‚Ý‚Ìrender target‚ðƒ‚ƒjƒ^‚Éo—Í
     m_pSwapChain->Present(NULL, NULL);
 }
+
