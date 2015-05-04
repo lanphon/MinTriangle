@@ -15,7 +15,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             return 0;
 
         case WM_SIZE:
-            D3DManager::GetInstance().Resize(LOWORD(wParam), HIWORD(wParam));
+            D3DManager::GetInstance().Resize(LOWORD(lParam), HIWORD(lParam));
             return 0;
 
         case WM_PAINT:
@@ -73,7 +73,7 @@ int WINAPI WinMain(
     UpdateWindow(hWnd);
 
     // create d3d
-    if(!D3DManager::GetInstance().CreateDeviceFromDefaultAdapter())return 2;
+	if (!D3DManager::GetInstance().CreateDevice())return 2;
 
     // main loop
     MSG msg;

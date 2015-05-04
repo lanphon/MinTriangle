@@ -17,6 +17,7 @@ files {
     "*.fx",
 }
 includedirs {
+    "$(BOOST_DIR)",
 }
 buildoptions {
 }
