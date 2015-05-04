@@ -43,5 +43,6 @@ end
 configuration {}
 
 include "../01.CreateDevice"
+include "../02.D2D_HUD"
 include "../MinTriangle"
 

@@ -27,18 +27,26 @@ void D3DManager::Destroy()
 	m_pDevice.Reset();
 }
 
+Microsoft::WRL::ComPtr<IDXGIDevice1> D3DManager::GetDXGIDevice()const
+{
+    Microsoft::WRL::ComPtr<IDXGIDevice1> pDXGIDevice;
+    HRESULT hr = m_pDevice.As(&pDXGIDevice);
+	if (FAILED(hr))return pDXGIDevice;
+
+    return pDXGIDevice;
+}
+
 // ID3D11DeviceからIDXGIFactory2をゲットする
-Microsoft::WRL::ComPtr<class IDXGIFactory2> D3DManager::GetFactory()const
+Microsoft::WRL::ComPtr<IDXGIFactory2> D3DManager::GetFactory()const
 {
     Microsoft::WRL::ComPtr<IDXGIFactory2> pDXGIFactory;
     if (!m_pDevice)return pDXGIFactory;
 
-    Microsoft::WRL::ComPtr<IDXGIDevice> pDXGIDevice;
-    HRESULT hr = m_pDevice.As(&pDXGIDevice);
-    if (FAILED(hr))return pDXGIFactory;
+    auto pDXGIDevice=GetDXGIDevice();
+    if(!pDXGIDevice)return pDXGIFactory;
 
     Microsoft::WRL::ComPtr<IDXGIAdapter> pDXGIAdapter;
-    hr = pDXGIDevice->GetAdapter(pDXGIAdapter.GetAddressOf());
+    auto hr = pDXGIDevice->GetAdapter(pDXGIAdapter.GetAddressOf());
     if (FAILED(hr))return pDXGIFactory;
 
     hr = pDXGIAdapter->GetParent(IID_PPV_ARGS(pDXGIFactory.GetAddressOf()));
@@ -61,13 +69,22 @@ Microsoft::WRL::ComPtr<IDXGIAdapter> D3DManager::GetAdapter(
     return pDXGIAdapter;
 }
 
+Microsoft::WRL::ComPtr<struct IDXGISurface> D3DManager::GetSurface()const
+{
+    Microsoft::WRL::ComPtr<IDXGISurface> pDXGISurface;
+    auto hr=m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(pDXGISurface.GetAddressOf()));
+    if(FAILED(hr))return pDXGISurface;
+
+    return pDXGISurface;
+}
+
 bool D3DManager::CreateDevice(UINT adapterIndex)
 {
 	Destroy();
 
 	// CreateDevice
 	D3D_DRIVER_TYPE dtype = D3D_DRIVER_TYPE_HARDWARE;
-	UINT flags = 0;
+	UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT; // for D2D
 #ifdef _DEBUG
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -105,9 +122,13 @@ bool D3DManager::CreateSwapChainForWindow(HWND hWnd)
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+#if 1
 	sd.BufferCount = 2;
-	//sd.Scaling = DXGI_SCALING_NONE;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+#else
+	sd.BufferCount = 1;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+#endif
 	//sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	//sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	
@@ -119,9 +140,11 @@ bool D3DManager::CreateSwapChainForWindow(HWND hWnd)
 		m_pSwapChain.ReleaseAndGetAddressOf());
 	if (FAILED(hr))return false;
 
+#if 1
 	// alt + F5のフルスクリーンを止める
 	pDXGIFactory->MakeWindowAssociation(hWnd, DXGI_MWA_NO_WINDOW_CHANGES
 		| DXGI_MWA_NO_ALT_ENTER);
+#endif
 
     return true;
 }
@@ -142,56 +165,72 @@ void D3DManager::Resize(int w, int h)
 	m_fullscreenRequest = isFullscreen;
 }
 
-void D3DManager::Render(HWND hWnd)
+bool D3DManager::BeginRender(HWND hWnd)
 {
 	if (!m_pSwapChain){
-		if (!CreateSwapChainForWindow(hWnd))return;
+		if (!CreateSwapChainForWindow(hWnd))return false;
 	}
 
+    // resize buffer
+    DXGI_SWAP_CHAIN_DESC sd;
+    m_pSwapChain->GetDesc(&sd);
+
+    if (m_resizeRequest){
+        auto hr=m_pSwapChain->ResizeBuffers(sd.BufferCount,
+            m_resizeRequest->first, m_resizeRequest->second,
+            sd.BufferDesc.Format,
+            sd.Flags // flags
+            );
+        m_resizeRequest.reset();
+        if (FAILED(hr)){
+            return false;
+        }
+    }
+
+    if (m_fullscreenRequest){
+        m_isFullscreen = *m_fullscreenRequest;
+        m_fullscreenRequest.reset();
+    }
+
+    return true;
+}
+
+// update swapchain
+void D3DManager::EndRender()
+{
+	m_pSwapChain->Present(NULL, NULL);
+}
+
+void D3DManager::Render(HWND hWnd)
+{
+    if(BeginRender(hWnd))
+    {
+        RenderSelf();
+
+        EndRender();
+    }
+}
+
+void D3DManager::RenderSelf()
+{
 	if (!m_pRTV){
-		DXGI_SWAP_CHAIN_DESC sd;
-		m_pSwapChain->GetDesc(&sd);
-
-		if (m_resizeRequest){
-			auto hr=m_pSwapChain->ResizeBuffers(sd.BufferCount,
-				m_resizeRequest->first, m_resizeRequest->second,
-				sd.BufferDesc.Format,
-				sd.Flags // flags
-				);
-			m_resizeRequest.reset();
-			if (FAILED(hr)){
-				return;
-			}
-		}
-
-		if (m_fullscreenRequest){
-			m_isFullscreen = *m_fullscreenRequest;
-			m_fullscreenRequest.reset();
-		}
-
 		// SwapChainからバックバッファを取得
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
 		auto hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(pBackBuffer.GetAddressOf()));
 		if (FAILED(hr))return;
 
 		// RTVを作る
-		hr = m_pDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, m_pRTV.ReleaseAndGetAddressOf());
+		hr = m_pDevice->CreateRenderTargetView(pBackBuffer.Get()
+                , NULL, m_pRTV.ReleaseAndGetAddressOf());
 		if (FAILED(hr))return;
 	}
 
-	{
-		// レンダリング
+    // DeviceContext
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
+    m_pDevice->GetImmediateContext(pDeviceContext.GetAddressOf());
 
-		// DeviceContext
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> pDeviceContext;
-		m_pDevice->GetImmediateContext(pDeviceContext.GetAddressOf());
-
-		// clear rendertarget
-		float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.0f };
-		pDeviceContext->ClearRenderTargetView(m_pRTV.Get(), clearColor);
-	}
-
-	// update swapchain
-	m_pSwapChain->Present(NULL, NULL);
+    // clear rendertarget
+    float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+    pDeviceContext->ClearRenderTargetView(m_pRTV.Get(), clearColor);
 }
 
