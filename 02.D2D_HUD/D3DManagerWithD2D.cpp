@@ -38,8 +38,6 @@ public:
 
         // Draw a grid background.
         int width = static_cast<int>(rtSize.width);
-        int height = static_cast<int>(rtSize.height);
-
         for (int x = 0; x < width; x += 10)
         {
             pRenderTarget->DrawLine(
@@ -50,7 +48,8 @@ public:
                     );
         }
 
-        for (int y = 0; y < height; y += 10)
+		int height = static_cast<int>(rtSize.height);
+		for (int y = 0; y < height; y += 10)
         {
             pRenderTarget->DrawLine(
                     D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
@@ -147,10 +146,8 @@ D3DManagerWithD2D::D3DManagerWithD2D()
 {
 }
 
-D3DManagerWithD2D& D3DManagerWithD2D::GetInstance()
+D3DManagerWithD2D::~D3DManagerWithD2D()
 {
-    static D3DManagerWithD2D s_instance;
-    return s_instance;
 }
 
 void D3DManagerWithD2D::Destroy()

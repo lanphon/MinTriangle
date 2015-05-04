@@ -16,17 +16,9 @@ class D3DManager
 	boost::optional<BOOL> m_fullscreenRequest;
 	boost::optional<std::pair<int, int>> m_resizeRequest;
 
-    /// @name singleton
-    /// {
-    D3DManager(const D3DManager &);
-    D3DManager& operator=(const D3DManager &);
-protected:
+public:
     D3DManager();
     virtual ~D3DManager();
-public:
-    static D3DManager& GetInstance();
-    /// @}
-
 	virtual void Destroy();
 
 	Microsoft::WRL::ComPtr<struct IDXGIDevice1> GetDXGIDevice()const;

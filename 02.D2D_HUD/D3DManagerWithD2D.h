@@ -13,14 +13,9 @@ class D3DManagerWithD2D: public D3DManager
 
     std::shared_ptr<class D2DRenderUtil> m_d2dRenderer;
 
-    /// @name singleton
-    /// {
-    D3DManagerWithD2D();
-    D3DManagerWithD2D(const D3DManagerWithD2D &);
-    D3DManagerWithD2D& operator=(const D3DManagerWithD2D &);
 public:
-    static D3DManagerWithD2D& GetInstance();
-    /// @}
+    D3DManagerWithD2D();
+    ~D3DManagerWithD2D();
 
 	void Destroy()override;
     bool CreateDevice(UINT adapterIndex=0)override;

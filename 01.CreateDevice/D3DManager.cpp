@@ -14,12 +14,6 @@ D3DManager::~D3DManager()
     Destroy();
 }
 
-D3DManager& D3DManager::GetInstance()
-{
-    static D3DManager s_instance;
-    return s_instance;
-}
-
 void D3DManager::Destroy()
 {
 	m_pRTV.Reset();
