@@ -1,6 +1,8 @@
 #include <Windows.h>
-#include "D3DManagerWithD2D.h"
 #include "../01.CreateDevice/windowutil.h"
+#include "../01.CreateDevice/D3DManager.h"
+#include "D2DManager.h"
+#include <sstream>
 
 
 auto szTitle = L"MinTriangle";
@@ -17,16 +19,22 @@ int WINAPI WinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    D3DManagerWithD2D d3d;
+    DXGIManager dxgi;
+    // d3d
+    auto d3d=std::make_shared<D3DManager>();
+    dxgi.AddResourceManager(d3d);
+    // d2d
+    auto d2d=std::make_shared<D2DManager>();
+    dxgi.AddResourceManager(d2d);
 
-    auto hWnd=windowutil::NewWindow(szWindowClass, szTitle, &d3d);
+    auto hWnd=windowutil::NewWindow(szWindowClass, szTitle, &dxgi);
     if(!hWnd)return 1;
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    // create d3d
-	if (!d3d.CreateDevice())return 2;
+    // create dxgi
+	if (!dxgi.CreateDevice())return 2;
 
     // main loop
     MSG msg;
@@ -40,8 +48,12 @@ int WINAPI WinMain(
             DispatchMessage(&msg);
         }
         else {
-            // clear render target
-            d3d.Render(hWnd);
+            static int counter=1;
+            std::wstringstream ss;
+            ss << counter++ << L"Frame.";
+            d2d->SetText(ss.str());
+
+            dxgi.Render(hWnd);
         }
     }
     return (int) msg.wParam;

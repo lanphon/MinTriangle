@@ -9,7 +9,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         case WM_CREATE:
             {
-                auto pD3D=(D3DManager*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+                auto pD3D=(DXGIManager*)((LPCREATESTRUCT)lParam)->lpCreateParams;
                 // set this pointer
                 SetWindowLongPtr(hWnd, GWL_USERDATA, (LONG_PTR)pD3D);
             }
@@ -19,7 +19,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_SIZE:
-            if(auto pD3D=(D3DManager*)GetWindowLongPtr(hWnd, GWL_USERDATA)){
+            if(auto pD3D=(DXGIManager*)GetWindowLongPtr(hWnd, GWL_USERDATA)){
                 pD3D->Resize(LOWORD(lParam), HIWORD(lParam));
             }
             return 0;
@@ -33,8 +33,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_DESTROY:
-			if (auto pD3D = (D3DManager*)GetWindowLongPtr(hWnd, GWL_USERDATA)){
-                pD3D->Destroy();
+			if (auto pD3D = (DXGIManager*)GetWindowLongPtr(hWnd, GWL_USERDATA)){
+                pD3D->DestroyDevice();
             }
             PostQuitMessage(0);
             return 0;

@@ -15,7 +15,9 @@ files {
     "*.rc",
     "*.h",
     "*.fx",
+    "../01.CreateDevice/DXGIManager.cpp",
     "../01.CreateDevice/D3DManager.cpp",
+    "../01.CreateDevice/D3DResource.cpp",
     "../01.CreateDevice/windowutil.cpp",
 }
 includedirs {
