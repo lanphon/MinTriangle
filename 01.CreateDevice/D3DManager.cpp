@@ -33,3 +33,4 @@ void D3DManager::Render(DXGIManager *pDxgi)
 
 	}
 }
+

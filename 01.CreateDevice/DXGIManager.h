@@ -20,12 +20,17 @@ public:
     ///
     /// 生成する
     ///
-    virtual void Create(DXGIManager *pDxgi)=0;
+    virtual bool Create(DXGIManager *pDxgi)=0;
 
     ///
     /// 解放する
     ///
     virtual void Release()=0;
+
+    ///
+    /// パイプラインにセットする
+    ///
+    virtual void SetupPipeline(ID3D11DeviceContext *pDeviceContext)=0;
 };
 
 
