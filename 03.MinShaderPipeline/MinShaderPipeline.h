@@ -1,5 +1,5 @@
 #pragma once
-#include "../01.CreateDevice/D3DResource.h"
+#include "D3DShaderResource.h"
 
 ///
 /// D3D11‚ÌƒŠƒ\[ƒX‚ğŠÇ—‚·‚é

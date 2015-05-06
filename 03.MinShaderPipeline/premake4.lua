@@ -18,7 +18,6 @@ files {
     "../01.CreateDevice/DXGIManager.cpp",
     "../01.CreateDevice/D3DManager.cpp",
     "../01.CreateDevice/D3DResource.cpp",
-    "../01.CreateDevice/CompileShaderFromFile.cpp",
     "../01.CreateDevice/windowutil.cpp",
     "../02.D2D_HUD/D2DManager.cpp",
 }
