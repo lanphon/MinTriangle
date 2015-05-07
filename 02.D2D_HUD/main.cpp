@@ -3,11 +3,12 @@
 #include "../01.CreateDevice/D3DManager.h"
 #include "D2DManager.h"
 #include <sstream>
+#include <mmsystem.h>
 
 
-auto szTitle = L"MinTriangle";
-auto szWindowClass = L"MinTriangle";
-
+auto title = L"MinTriangle";
+auto windowclass = L"MinTriangle";
+auto uifile="../02.D2D_HUD/D2D_HUD.ui.json";
 
 int WINAPI WinMain(
         HINSTANCE hInstance, // 現在のインスタンスのハンドル
@@ -25,9 +26,10 @@ int WINAPI WinMain(
     dxgi.AddResourceManager(d3d);
     // d2d
     auto d2d=std::make_shared<D2DManager>();
+    d2d->GetHUD()->Load(uifile);
     dxgi.AddResourceManager(d2d);
 
-    auto hWnd=windowutil::NewWindow(szWindowClass, szTitle, &dxgi);
+    auto hWnd=windowutil::NewWindow(windowclass, title, &dxgi);
     if(!hWnd)return 1;
 
     ShowWindow(hWnd, nCmdShow);
@@ -48,14 +50,11 @@ int WINAPI WinMain(
             DispatchMessage(&msg);
         }
         else {
-            static int counter=1;
-            std::wstringstream ss;
-            ss << counter++ << L"Frame.";
-            d2d->SetText(ss.str());
+			auto now = timeGetTime();
+			d2d->GetHUD()->Update(std::chrono::milliseconds(now));
 
             dxgi.Render(hWnd);
         }
     }
     return (int) msg.wParam;
 }
-

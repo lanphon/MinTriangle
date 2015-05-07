@@ -1,0 +1,47 @@
+{
+    "TextFormat": {
+        "Font": "Meiryo"
+    },
+
+    "Layout": [
+        {
+            "Type": "VStack",
+            "Right": 10,
+            "Top": 10,
+            "Width": 300,
+            "Height": 400,
+            "Background": [0.5,0.5,0.5,0.5],
+            "Layout": [
+                {
+                    "Type": "HStack",
+                    "Layout": [
+                        { "Type": "Label", "Text": "Adapter", "Width": 100 },
+                        { "Type": "Label", "Text": "$AdapterName" }
+                    ]
+                },
+                {
+                    "Type": "HStack",
+                    "Layout": [
+                        { "Type": "Label", "Text": "Width", "Width": 100 },
+                        { "Type": "Label", "Text": "$BackbufferWidth" }
+                    ]
+                },
+                {
+                    "Type": "HStack",
+                    "Layout": [
+                        { "Type": "Label", "Text": "Height", "Width": 100 },
+                        { "Type": "Label", "Text": "$BackbufferHeight" }
+                    ]
+                },
+                {
+                    "Type": "HStack",
+                    "Layout": [
+                        { "Type": "Label", "Text": "FPS", "Width": 100 },
+                        { "Type": "Label", "Text": "$FPS" }
+                    ]
+                },
+                { "Type": "Logger" }
+            ]
+        }
+    ]
+}

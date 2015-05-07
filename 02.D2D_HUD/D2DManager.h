@@ -1,4 +1,5 @@
 #include "../01.CreateDevice/DXGIManager.h"
+#include "HUD.h"
 #include <memory>
 #include <d2d1_1.h>
 #include <dwrite.h>
@@ -11,14 +12,10 @@ class D2DManager: public IRenderResourceManager
 {
 	Microsoft::WRL::ComPtr<ID2D1Device> m_pD2DDevice;
 	Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_pD2DDeviceContext;
-
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> m_pBitmap;
-    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_pLightSlateGrayBrush;
-    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_pCornflowerBlueBrush;
 
-    std::wstring m_text;
-    Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> m_pBlackBrush;
-    Microsoft::WRL::ComPtr<IDWriteTextFormat> m_pTextFormat;
+    // ui
+    std::shared_ptr<HUD> m_hud;
 
 public:
     D2DManager();
@@ -27,6 +24,6 @@ public:
     void OnDestroyDevice()override;
     void Render(DXGIManager *pDxgi)override;
 
-    void SetText(const std::wstring &text){ m_text=text; }
+	std::shared_ptr<HUD> GetHUD()const{ return m_hud; }
 };
 
