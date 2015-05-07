@@ -4,6 +4,17 @@
 #include <boost/property_tree/ptree.hpp>
 //#include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/lexical_cast.hpp>
+
+
+
+inline std::wstring to_WideChar(UINT uCodePage, const std::string &text)
+{
+	int size = MultiByteToWideChar(uCodePage, 0, text.c_str(), -1, NULL, 0);
+	std::vector<wchar_t> buf(size);
+	size = MultiByteToWideChar(uCodePage, 0, text.c_str(), -1, &buf[0], buf.size());
+	return std::wstring(buf.begin(), buf.begin() + size);
+}
 
 
 class D2DSolidColorBrush: public ID2DResource
@@ -85,18 +96,18 @@ public:
 class UIRect: public UIItemBase
 {
 	std::shared_ptr<D2DSolidColorBrush> m_bg;
-
-	std::wstring m_text;
 	std::shared_ptr<D2DSolidColorBrush> m_fg;
 
 public:
 
     void Layout(const D2D1::TypeTraits<FLOAT>::Rect &rect)override
     {
+		m_rect = rect;
     }
 
     void Render(ID2D1DeviceContext *pRenderTarget
-            , IDWriteTextFormat *pTextFormat)override
+            , IDWriteTextFormat *pTextFormat
+			, ID2D1Brush *pBrush)override
     {
 		if (m_bg){
 			m_bg->Create(pRenderTarget);
@@ -105,12 +116,15 @@ public:
 
 		if (m_fg){
 			m_fg->Create(pRenderTarget);
+		}
+
+		if (!m_text.empty()){
 			pRenderTarget->DrawText(
 				m_text.c_str(),
 				m_text.size(),
 				pTextFormat,
 				m_rect,
-				m_fg->Get()
+				m_fg ? m_fg->Get() : pBrush
 				);
 		}
     }
@@ -124,10 +138,20 @@ class UIStack: public UIGroupBase
 {
     void Layout(const D2D1::TypeTraits<FLOAT>::Rect &rect)override
     {
+		for (auto &child : m_children)
+		{
+			child->Layout(rect);
+		}
     }
 
-	void Render(ID2D1DeviceContext *pRenderTarget, IDWriteTextFormat *pTextFormat)override
+	void Render(ID2D1DeviceContext *pRenderTarget
+		, IDWriteTextFormat *pTextFormat
+		, ID2D1Brush *pBrush)override
     {
+		for (auto &child : m_children)
+		{
+			child->Render(pRenderTarget, pTextFormat, pBrush);
+		}
     }
 };
 
@@ -135,9 +159,11 @@ class UIStack: public UIGroupBase
 static void Traverse(const boost::property_tree::ptree &pt
 	, const std::shared_ptr<UIGroupBase> &item)
 {
+    std::shared_ptr<UIItemBase> base;
 	if (auto layout = pt.get_child_optional("Layout")){
 		// node
 		auto node = std::make_shared<UIStack>();
+        base=node;
 		item->AddChild(node);
 
 		for (auto &child : *layout)
@@ -147,9 +173,34 @@ static void Traverse(const boost::property_tree::ptree &pt
 	}
 	else{
         // leaf
-        auto leaf=std::make_shared<UIRect>();
-        item->AddChild(leaf);
+        base=std::make_shared<UIRect>();
+        item->AddChild(base);
     }
+
+    // ëÆê´
+    if(auto rect = pt.get_child_optional("Rect")){
+        std::vector<float> values;
+        for(auto &value: *rect)
+        {
+			values.push_back(boost::lexical_cast<float>(value.second.data()));
+        }
+		base->SetLeft(values[0]);
+		base->SetTop(values[1]);
+		if (values[2] != 0)base->SetWidth(values[2]);
+		if (values[3] != 0)base->SetHeight(values[3]);
+    }
+
+	if (auto value = pt.get_optional<float>("Width")){
+		base->SetWidth(*value);
+	}
+
+	if (auto value = pt.get_optional<float>("Height")){
+		base->SetHeight(*value);
+	}
+
+	if (auto value = pt.get_optional<std::string>("Text")){
+		base->SetText(to_WideChar(CP_UTF8, *value));
+	}
 }
 
 
@@ -166,6 +217,8 @@ bool HUD::Load(const std::string &path)
 
     auto &textformat=pt.get_child("TextFormat");
 	m_textformat = std::make_shared<D2DTextFormat>(L"Verdana", 50);
+
+    m_fg=std::make_shared<D2DSolidColorBrush>(D2D1::ColorF::Black);
 
 	// build tree
 	if (auto layout = pt.get_child_optional("Layout")){
@@ -189,9 +242,11 @@ void HUD::Render(ID2D1DeviceContext *pRenderTarget)
 
     // create
 	m_textformat->Create(pRenderTarget);
+    m_fg->Create(pRenderTarget);
 
     pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
     D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
 	m_root->Layout(D2D1::RectF(0, 0, rtSize.width, rtSize.height));
-    m_root->Render(pRenderTarget, m_textformat->Get());
+    m_root->Render(pRenderTarget, m_textformat->Get(), m_fg->Get());
 }
+

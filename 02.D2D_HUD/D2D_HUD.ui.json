@@ -5,42 +5,39 @@
 
     "Layout": [
         {
-            "Type": "VStack",
-            "Right": 10,
-            "Top": 10,
-            "Width": 300,
-            "Height": 400,
+            "Split": "Vertical",
+            "Rect": [10, 10, 300, 400],
             "Background": [0.5,0.5,0.5,0.5],
             "Layout": [
                 {
-                    "Type": "HStack",
+                    "Split": "Horizontal",
                     "Layout": [
-                        { "Type": "Label", "Text": "Adapter", "Width": 100 },
-                        { "Type": "Label", "Text": "$AdapterName" }
+                        { "Text": "Adapter", "Width": 100 },
+                        { "Text": "$AdapterName" }
                     ]
                 },
                 {
-                    "Type": "HStack",
+                    "Split": "Horizontal",
                     "Layout": [
-                        { "Type": "Label", "Text": "Width", "Width": 100 },
-                        { "Type": "Label", "Text": "$BackbufferWidth" }
+                        { "Text": "Width", "Width": 100 },
+                        { "Text": "$BackbufferWidth" }
                     ]
                 },
                 {
-                    "Type": "HStack",
+                    "Split": "Horizontal",
                     "Layout": [
-                        { "Type": "Label", "Text": "Height", "Width": 100 },
-                        { "Type": "Label", "Text": "$BackbufferHeight" }
+                        { "Text": "Height", "Width": 100 },
+                        { "Text": "$BackbufferHeight" }
                     ]
                 },
                 {
-                    "Type": "HStack",
+                    "Split": "Horizontal",
                     "Layout": [
-                        { "Type": "Label", "Text": "FPS", "Width": 100 },
-                        { "Type": "Label", "Text": "$FPS" }
+                        { "Text": "FPS", "Width": 100 },
+                        { "Text": "$FPS" }
                     ]
                 },
-                { "Type": "Logger" }
+                { "Text": "$MessageList" }
             ]
         }
     ]
