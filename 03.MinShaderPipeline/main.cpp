@@ -5,9 +5,10 @@
 #include <sstream>
 
 
-auto szTitle = L"MinTriangle";
-auto szWindowClass = L"MinTriangle";
-auto szShader= L"../03.MinShaderPipeline/MinShaderPipeline.fx";
+auto title = L"MinTriangle";
+auto windowClass = L"MinTriangle";
+auto shader= L"../03.MinShaderPipeline/MinShaderPipeline.fx";
+auto uifile="../02.D2D_HUD/D2D_HUD.ui.xml";
 
 int WINAPI WinMain(
         HINSTANCE hInstance, // 現在のインスタンスのハンドル
@@ -22,7 +23,7 @@ int WINAPI WinMain(
     DXGIManager dxgi;
     // d3d
     ShaderInfo info;
-    info.path=szShader;
+    info.path=shader;
     info.vs.entrypoint="vsMain";
     info.vs.model="vs_4_0_level_9_1";
     info.ps.entrypoint="psMain";
@@ -32,9 +33,10 @@ int WINAPI WinMain(
     dxgi.AddResourceManager(d3d);
     // d2d
     auto d2d=std::make_shared<D2DManager>();
+    d2d->GetHUD()->Load(uifile);
     dxgi.AddResourceManager(d2d);
 
-    auto hWnd=windowutil::NewWindow(szWindowClass, szTitle, &dxgi);
+    auto hWnd=windowutil::NewWindow(windowClass, title, &dxgi);
     if(!hWnd)return 1;
 
     ShowWindow(hWnd, nCmdShow);
@@ -55,14 +57,8 @@ int WINAPI WinMain(
             DispatchMessage(&msg);
         }
         else {
-            static int counter=1;
-            std::wstringstream ss;
-            ss << counter++ << L"Frame.";
-            d2d->SetText(ss.str());
-
             dxgi.Render(hWnd);
         }
     }
     return (int) msg.wParam;
 }
-

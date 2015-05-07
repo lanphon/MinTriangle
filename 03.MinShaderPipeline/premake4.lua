@@ -20,6 +20,9 @@ files {
     "../01.CreateDevice/D3DResource.cpp",
     "../01.CreateDevice/windowutil.cpp",
     "../02.D2D_HUD/D2DManager.cpp",
+    "../02.D2D_HUD/D2DResource.cpp",
+    "../02.D2D_HUD/HUD.cpp",
+    "../02.D2D_HUD/UIRect.cpp",
 }
 includedirs {
     "$(BOOST_DIR)",

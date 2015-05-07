@@ -8,7 +8,7 @@
 
 auto title = L"MinTriangle";
 auto windowclass = L"MinTriangle";
-auto uifile="../02.D2D_HUD/D2D_HUD.ui.json";
+auto uifile="../02.D2D_HUD/D2D_HUD.ui.xml";
 
 int WINAPI WinMain(
         HINSTANCE hInstance, // 現在のインスタンスのハンドル

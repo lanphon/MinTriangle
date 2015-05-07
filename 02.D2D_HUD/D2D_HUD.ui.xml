@@ -1,0 +1,30 @@
+<UI>
+  <Rect>
+    <Rect/>
+    <Rect Orientation="Vertical"
+        Font="Meiryo"
+        FontSize="24"
+        Width="400"
+        Background="0.5, 0.5, 0.5, 0.5"
+        >
+      <Rect Height="40"/>
+      <Rect Height="40">
+        <Rect Text="Adapter" Width="110" />
+        <Rect Text="$AdapterName" />
+      </Rect>
+      <Rect Height="40">
+        <Rect Text="Width" Width="110" />
+        <Rect Text="$BackbufferWidth" />
+      </Rect>
+      <Rect Height="40">
+        <Rect Text="Height" Width="110" />
+        <Rect Text="$BackbufferHeight" />
+      </Rect>
+      <Rect Height="40">
+        <Rect Text="FPS" Width="110" />
+        <Rect Text="$FPS" />
+      </Rect>
+      <Rect Text="$MessageList" />
+    </Rect>
+  </Rect>
+</UI>
