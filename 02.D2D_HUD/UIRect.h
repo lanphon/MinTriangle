@@ -11,16 +11,19 @@ class D2DSolidColorBrush;
 class D2DTextFormat;
 class UIRect
 {
-    enum ORIENTATION_TYPE
+    enum LAYOUT_TYPE
     {
-        ORIENTATION_HORIZONTAL,
-        ORIENTATION_VERTICAL,
+        LAYOUT_STACK_HORIZONTAL,
+        LAYOUT_STACK_VERTICAL,
+        LAYOUT_WINDOW,
     };
-    ORIENTATION_TYPE m_orientation;
+    LAYOUT_TYPE m_layout;
 
     // 要求サイズ
-    float m_left;
-    float m_top;
+    boost::optional<float> m_left;
+    boost::optional<float> m_top;
+    boost::optional<float> m_right;
+    boost::optional<float> m_bottom;
 	float m_width;
     float m_height;
 
@@ -54,14 +57,24 @@ private:
 
 public:
 	UIRect();
-    void SetOrientation(ORIENTATION_TYPE orientation){ m_orientation=orientation; }
+    void SetDefault();
+    void SetLayout(LAYOUT_TYPE layout){ m_layout=layout; }
+
     void SetLeft(float left){ m_left=left; }
+    boost::optional<float> GetLeft()const{ return m_left; }
     void SetTop(float top){ m_top=top; }
+    boost::optional<float> GetTop()const{ return m_top; }
+    void SetRight(float right){ m_right=right; }
+    boost::optional<float> GetRight()const{ return m_right; }
+    void SetBottom(float bottom){ m_bottom=bottom; }
+    boost::optional<float> GetBottom()const{ return m_bottom; }
+
     void SetWidth(float width){ m_width=width; }
     float GetWidth()const{ return m_width; }
     void SetHeight(float height){ m_height=height; }
     float GetHeight()const{ return m_height; } 
     void SetText(const TextFunc &text){ m_text=text; }
+    void SetBG(const std::shared_ptr<D2DSolidColorBrush> &bg){ m_bg=bg; }
     void SetFG(const std::shared_ptr<D2DSolidColorBrush> &fg){ m_fg=fg; }
     void SetTextFormat(const std::shared_ptr<D2DTextFormat> &textformat){ m_textformat=textformat; }
     void AddChild(const std::shared_ptr<UIRect> &child) { m_children.push_back(child); }

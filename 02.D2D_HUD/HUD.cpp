@@ -19,15 +19,10 @@ bool HUD::Load(const std::string &path)
     }
 
 	// build tree
-	if (auto layout = pt.get_child_optional(L"UI.Rect")){
+	if (auto layout = pt.get_child_optional(L"Rect")){
 		m_root = std::make_shared<UIRect>();
 
-		// root node default attrubutes
-		auto textformat = std::make_shared<D2DTextFormat>(L"Verdana", 50.0f);
-		m_root->SetTextFormat(textformat);
-
-		auto fg=std::make_shared<D2DSolidColorBrush>(D2D1::ColorF::Black);
-		m_root->SetFG(fg);
+        m_root->SetDefault();
 
 		// traverse ui tree
 		m_root->Traverse(*layout);
