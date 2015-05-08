@@ -6,7 +6,22 @@
 #include <d2d1_1.h>
 
 
+std::wstring DictContext::GetText(const std::wstring &key)
+{
+    auto found=m_map.find(key);
+    if(found==m_map.end())return L"";
+
+    return found->second;
+}
+
+void DictContext::SetText(const std::wstring &key, const std::wstring &value)
+{
+    m_map[key]=value;
+}
+
+
 HUD::HUD()
+    : m_context(new DictContext)
 {}
 
 bool HUD::Load(const std::string &path)
@@ -34,6 +49,14 @@ bool HUD::Load(const std::string &path)
 void HUD::Update(const std::chrono::milliseconds &elapsed)
 {
 	if (!m_root)return;
+
+    static int counter=0;
+    ++counter;
+
+    std::wstringstream ss;
+    ss << counter;
+
+    m_context->SetText(L"FPS", ss.str());
 }
 
 void HUD::Render(ID2D1DeviceContext *pRenderTarget)
@@ -43,5 +66,6 @@ void HUD::Render(ID2D1DeviceContext *pRenderTarget)
     pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
     D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
 	m_root->Layout(UIRect::Rect(0, 0, rtSize.width, rtSize.height));
-    m_root->Render(pRenderTarget);
+    m_root->Render(pRenderTarget, m_context.get());
 }
+

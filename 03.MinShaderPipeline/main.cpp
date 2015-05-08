@@ -3,6 +3,7 @@
 #include "../02.D2D_HUD/D2DManager.h"
 #include "MinShaderPipeline.h"
 #include <sstream>
+#include <mmsystem.h>
 
 
 auto title = L"MinTriangle";
@@ -58,6 +59,8 @@ int WINAPI WinMain(
         }
         else {
             dxgi.Render(hWnd);
+			auto now = timeGetTime();
+			d2d->GetHUD()->Update(std::chrono::milliseconds(now));
         }
     }
     return (int) msg.wParam;

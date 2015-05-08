@@ -39,5 +39,6 @@ links {
     "dxguid",
     "d2d1",
     "dwrite",
+    "winmm",
 }
 

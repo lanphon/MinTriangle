@@ -1,5 +1,6 @@
 #include "UIRect.h"
 #include "D2DResource.h"
+#include "TextContext.h"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -79,7 +80,18 @@ void UIRect::Traverse(const boost::property_tree::wptree &pt)
 				}
 				else if (attr.first == L"Text"){
 				    auto text=attr.second.data();
-					SetText([text](){ return text; });
+                    if(text.size()>1 && text[0]==L'$'){
+
+                        text=text.substr(1);
+
+                        SetText([text](ITextContext *pContext){ 
+                            return pContext->GetText(text);
+                        });
+
+                    }
+                    else{
+                        SetText([text](ITextContext*){ return text; });
+                    }
 				}
 				else if (attr.first == L"Font")
 				{
@@ -263,10 +275,11 @@ void UIRect::Layout(const Rect &rect)
 }
 
 void UIRect::Render(struct ID2D1DeviceContext *pRenderTarget
-        , IDWriteTextFormat *pTextFormat
-        , ID2D1Brush *pBG
-        , ID2D1Brush *pFG
-        )
+	, ITextContext *pContext
+	, IDWriteTextFormat *pTextFormat
+    , ID2D1Brush *pBG
+    , ID2D1Brush *pFG
+    )
 {
     if (m_bg){
         m_bg->Create(pRenderTarget);
@@ -284,30 +297,32 @@ void UIRect::Render(struct ID2D1DeviceContext *pRenderTarget
 
     // 自ノード
     RenderSelf(pRenderTarget
-            , pTextFormat
-			, m_bg ? m_bg->Get() : nullptr
-			, pFG
-            );
+		, pContext
+        , pTextFormat
+		, m_bg ? m_bg->Get() : nullptr
+		, pFG
+        );
 
     // 子ノード
     for (auto &child : m_children)
     {
-        child->Render(pRenderTarget, pTextFormat, pBG, pFG);
+        child->Render(pRenderTarget, pContext, pTextFormat, pBG, pFG);
     }
 }
 
 void UIRect::RenderSelf(ID2D1DeviceContext *pRenderTarget
-        , IDWriteTextFormat *pTextFormat
-        , ID2D1Brush *pBG
-        , ID2D1Brush *pFG
-        )
+	, ITextContext *pContext
+	, IDWriteTextFormat *pTextFormat
+    , ID2D1Brush *pBG
+    , ID2D1Brush *pFG
+    )
 {
     if (pBG){
         pRenderTarget->FillRectangle((const D2D1_RECT_F*)&m_rect, pBG);
     }
 
     if (m_text && pFG){
-		auto text = m_text();
+		auto text = m_text(pContext);
         pRenderTarget->DrawText(
             text.c_str(),
             text.size(),

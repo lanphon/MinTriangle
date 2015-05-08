@@ -7,6 +7,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 
+class ITextContext;
 class D2DSolidColorBrush;
 class D2DTextFormat;
 class UIRect
@@ -28,7 +29,7 @@ class UIRect
     float m_height;
 
     // •`‰æ•¶Žš—ñ
-    typedef std::function<std::wstring()> TextFunc;
+    typedef std::function<std::wstring(ITextContext*)> TextFunc;
     TextFunc m_text;
 
     // Layout()‚ÅŒvŽZ‚·‚é’l
@@ -81,16 +82,18 @@ public:
     void Traverse(const boost::property_tree::wptree &pt);
     void Layout(const Rect &rect);
     void Render(struct ID2D1DeviceContext *pRenderTarget
-            , struct IDWriteTextFormat *pTextFormat=nullptr
-            , struct ID2D1Brush *pBG=nullptr
-            , struct ID2D1Brush *pFG=nullptr
-            );
+		, ITextContext *pContext
+		, struct IDWriteTextFormat *pTextFormat = nullptr
+        , struct ID2D1Brush *pBG=nullptr
+        , struct ID2D1Brush *pFG=nullptr
+        );
 
 private:
     void RenderSelf(struct ID2D1DeviceContext *pRenderTarget
-            , struct IDWriteTextFormat *pTextFormat
-            , struct ID2D1Brush *pBG
-            , struct ID2D1Brush *pFG
-            );
+		, ITextContext *pContext
+		, struct IDWriteTextFormat *pTextFormat
+        , struct ID2D1Brush *pBG
+        , struct ID2D1Brush *pFG
+        );
 };
 
