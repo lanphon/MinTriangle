@@ -2,6 +2,9 @@
 
 D3D11(vs2013)による三角形描画サンプル。
 
+## 更新
+* 20180531 CMakeに書き換える
+
 #Tutorial
 ##[x]01.CreateDevice & ClearRenderTarget
 ID3D11Deviceを生成してWindowを単色でクリアするまで。

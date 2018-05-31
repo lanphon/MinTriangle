@@ -17,7 +17,7 @@ public:
 	Shader();
     bool Initialize(
             const Microsoft::WRL::ComPtr<struct ID3D11Device> &pDevice
-            , const std::wstring &shaderFile, const std::wstring &textureFile);
+            , const std::string &shaderSource, const std::wstring &textureFile);
 	void Draw(
             const Microsoft::WRL::ComPtr<struct ID3D11DeviceContext> &pDeviceContext);
 	void Animation();
@@ -25,6 +25,6 @@ public:
 private:
 	bool createShaders(
             const Microsoft::WRL::ComPtr<struct ID3D11Device> &pDevice
-		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc);
+		, const std::string &shaderSource, const std::string &vsFunc, const std::string &psFunc);
 };
 

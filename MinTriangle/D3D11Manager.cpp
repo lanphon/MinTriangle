@@ -19,7 +19,6 @@ public:
     {
 		pTexture->GetDesc(&m_colorDesc);
 
-        // RenderTargetViewの作成
         HRESULT hr = pDevice->CreateRenderTargetView(pTexture.Get(), NULL, &m_pRenderTargetView);
         if (FAILED(hr)){
             return false;
@@ -28,7 +27,6 @@ public:
 		D3D11_TEXTURE2D_DESC tdesc;
 		pTexture->GetDesc(&tdesc);
 
-		// デプステクスチャの作成
 		D3D11_TEXTURE2D_DESC depthDesc;
 		ZeroMemory(&depthDesc, sizeof(depthDesc));
 		depthDesc.Width = tdesc.Width;
@@ -47,7 +45,6 @@ public:
 			return false;
 		}
 
-		// DepthStencilViewの作成
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		ZeroMemory(&dsvDesc, sizeof(dsvDesc));
 		dsvDesc.Format = depthDesc.Format;
@@ -103,7 +100,7 @@ D3D11Manager::~D3D11Manager()
 }
 
 bool D3D11Manager::Initialize(HWND hWnd
-        , const std::wstring &shaderFile, const std::wstring &textureFile)
+        , const std::string &shaderSource, const std::wstring &textureFile)
 {
     D3D_DRIVER_TYPE dtype = D3D_DRIVER_TYPE_HARDWARE;
     UINT flags = 0;
@@ -151,7 +148,7 @@ bool D3D11Manager::Initialize(HWND hWnd
     }
 
     // shader 
-    if(!m_shader->Initialize(m_pDevice, shaderFile, textureFile)){
+    if(!m_shader->Initialize(m_pDevice, shaderSource, textureFile)){
         return false;
     }
 
@@ -170,7 +167,7 @@ void D3D11Manager::Resize(int w, int h)
     DXGI_SWAP_CHAIN_DESC desc;
     m_pSwapChain->GetDesc(&desc);
     m_pSwapChain->ResizeBuffers(desc.BufferCount,
-            0, 0,	// ClientRect を参照する
+            0, 0,	// reference ClientRect
             desc.BufferDesc.Format,
             0 // flags
             );
@@ -179,7 +176,6 @@ void D3D11Manager::Resize(int w, int h)
 void D3D11Manager::Render()
 {
     if(!m_renderTarget->IsInitialized()){
-        // SwapChainからバックバッファを取得
         Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
         m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
 		// Create RTV
@@ -189,14 +185,12 @@ void D3D11Manager::Render()
     }
 	m_renderTarget->SetAndClear(m_pDeviceContext);
 
-	// 描画
+	// draw
 	m_shader->Animation();
 	m_shader->Draw(m_pDeviceContext);
 
-    // render targetへの描画
     m_pDeviceContext->Flush();
 
-    // 描画済みのrender targetをモニタに出力
+    // output
     m_pSwapChain->Present(NULL, NULL);
 }
-

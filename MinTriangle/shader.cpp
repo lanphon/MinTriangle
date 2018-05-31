@@ -37,14 +37,15 @@ public:
 
 	void Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 	{
-		// VBのセット
+		// set vertexbuffer
 		ID3D11Buffer* pBufferTbl[] = { m_pVertexBuf.Get() };
 		UINT SizeTbl[] = { sizeof(Vertex) };
 		UINT OffsetTbl[] = { 0 };
 		pDeviceContext->IASetVertexBuffers(0, 1, pBufferTbl, SizeTbl, OffsetTbl);
-		// IBのセット
+
+		// set indexbuffer
 		pDeviceContext->IASetIndexBuffer(m_pIndexBuf.Get(), DXGI_FORMAT_R32_UINT, 0);
-		// プリミティブタイプのセット
+
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		pDeviceContext->DrawIndexed(m_indices // index count
@@ -231,9 +232,9 @@ Shader::Shader()
 {}
 
 bool Shader::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
-        , const std::wstring &shaderFile, const std::wstring &textureFile)
+        , const std::string &shaderSource, const std::wstring &textureFile)
 {
-    if(!createShaders(pDevice, shaderFile, "vsMain", "psMain")){
+    if(!createShaders(pDevice, shaderSource, "vsMain", "psMain")){
         return false;
     }
 
@@ -260,7 +261,7 @@ void Shader::Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceCont
     // PS
     pDeviceContext->PSSetShader(m_pPsh.Get(), NULL, 0);
 
-	// 定数バッファ
+	// ConstantBuffer
 	m_constant->UpdateCB(pDeviceContext);
 	m_constant->SetCB(pDeviceContext);
 
@@ -379,12 +380,12 @@ static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
 }
 
 bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
-    , const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
+    , const std::string &shaderSource, const std::string &vsFunc, const std::string &psFunc)
 {
     // vertex shader
     {
         Microsoft::WRL::ComPtr<ID3DBlob> vblob;
-        HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
+        HRESULT hr = CompileShaderFromSource("SOURCE", shaderSource.c_str(), shaderSource.size(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
         if (FAILED(hr))
             return false;
         hr = pDevice->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), NULL, &m_pVsh);
@@ -417,10 +418,10 @@ bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
                 sigdesc.SemanticName
                 , sigdesc.SemanticIndex
                 , format
-                , 0 // 決め打ち
-                , D3D11_APPEND_ALIGNED_ELEMENT // 決め打ち
-                , D3D11_INPUT_PER_VERTEX_DATA // 決め打ち
-                , 0 // 決め打ち
+                , 0 // hardcoding
+                , D3D11_APPEND_ALIGNED_ELEMENT // hardcoding
+                , D3D11_INPUT_PER_VERTEX_DATA // hardcoding
+                , 0 // hardcoding
             };
             vbElement.push_back(eledesc);
         }
@@ -436,7 +437,7 @@ bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
     // pixel shader
     {
         Microsoft::WRL::ComPtr<ID3DBlob> pblob;
-        auto hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
+        auto hr = CompileShaderFromSource("SOURCE", shaderSource.c_str(), shaderSource.size(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
         if (FAILED(hr))
             return false;
         hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);

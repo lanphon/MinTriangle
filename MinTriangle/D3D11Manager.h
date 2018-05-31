@@ -16,7 +16,7 @@ public:
     D3D11Manager();
     ~D3D11Manager();
     bool Initialize(HWND hWnd
-            , const std::wstring &shaderFile, const std::wstring &textureFile);
+            , const std::string &shaderSource, const std::wstring &textureFile);
     void Resize(int w, int h);
     void Render();
 };

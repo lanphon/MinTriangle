@@ -28,3 +28,5 @@
 /// <param name="ppBlobOut">holds result of compilation</param>
 /// <returns>S_OK for success, or failure code</returns>
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3D10Blob** ppBlobOut );
+
+HRESULT CompileShaderFromSource(const CHAR* szFileName, const CHAR *source, int sourceSize, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3D10Blob** ppBlobOut);

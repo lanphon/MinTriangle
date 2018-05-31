@@ -54,7 +54,7 @@ inline std::string to_MultiByte(UINT uCodePage, const std::wstring &text)
 	}
     std::vector<char> buf(size);
     size=WideCharToMultiByte(uCodePage, 0, text.c_str(), -1, &buf[0], buf.size(), 0, NULL);
-	// 末尾の\0を落とす
+	// trim tail zero
     return std::string(buf.begin(), buf.begin()+size-1);
 }
 
@@ -104,10 +104,8 @@ HRESULT CompileShaderFromFile
  ID3DBlob**  ppBlobOut
  )
 {
-    // リターンコードを初期化.
     HRESULT hr = S_OK;
 
-    // コンパイルフラグ.
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -120,7 +118,6 @@ HRESULT CompileShaderFromFile
 
     ID3DBlob* pErrorBlob = NULL;
 
-    // ファイルからシェーダをコンパイル.
     hr = D3DCompileFromFile(
             szFileName,
             NULL,
@@ -133,22 +130,65 @@ HRESULT CompileShaderFromFile
             &pErrorBlob 
             );
 
-    // エラーチェック.
     if ( FAILED( hr ) )
     {
-        // エラーメッセージを出力.
         if ( pErrorBlob != NULL )
         { OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() ); }
     }
 
-    // 解放処理.
     if ( pErrorBlob )
     {
         pErrorBlob->Release();
         pErrorBlob = NULL;
     }
 
-    // リターンコードを返却.
     return hr;
 }
 #endif
+
+HRESULT CompileShaderFromSource(const CHAR* szFileName, const CHAR *source, int sourceSize, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3D10Blob** ppBlobOut)
+{
+	HRESULT hr = S_OK;
+
+	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+#if defined(DEBUG) || defined(_DEBUG)
+	dwShaderFlags |= D3DCOMPILE_DEBUG;
+#endif//defiend(DEBUG) || defined(_DEBUG)
+
+#if defined(NDEBUG) || defined(_NDEBUG)
+	dwShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif//defined(NDEBUG) || defined(_NDEBUG)
+
+	ID3DBlob* pErrorBlob = NULL;
+
+	hr = D3DCompile(
+		source,
+		sourceSize,
+		szFileName,
+		NULL,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		szEntryPoint,
+		szShaderModel,
+		dwShaderFlags,
+		0,
+		ppBlobOut,
+		&pErrorBlob
+	);
+
+	if (FAILED(hr))
+	{
+		if (pErrorBlob != NULL)
+		{
+			OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+		}
+	}
+
+	if (pErrorBlob)
+	{
+		pErrorBlob->Release();
+		pErrorBlob = NULL;
+	}
+
+	return hr;
+}

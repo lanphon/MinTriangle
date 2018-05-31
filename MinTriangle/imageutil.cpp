@@ -61,7 +61,6 @@ std::shared_ptr<Image> Factory::Load(const std::wstring &path)
 	}
 
 	if (pixelFormat != GUID_WICPixelFormat32bppRGBA){
-        // •ÏŠ·‚·‚é
         Microsoft::WRL::ComPtr<IWICFormatConverter> FC;
         hr = m_factory->CreateFormatConverter(&FC);
         if(FAILED(hr)){
@@ -77,13 +76,13 @@ std::shared_ptr<Image> Factory::Load(const std::wstring &path)
 
 		// copy
 		auto image=std::make_shared<Image>(width, height, 4);
-		FC->CopyPixels(0, image->Stride(), image->Size(), image->Pointer());
+		FC->CopyPixels(0, image->Stride(), (UINT)image->Size(), image->Pointer());
 		return image;
 	}
 	else{
 		// copy
 		auto image = std::make_shared<Image>(width, height, 4);
-		frame->CopyPixels(0, image->Stride(), image->Size(), image->Pointer());
+		frame->CopyPixels(0, image->Stride(), (UINT)image->Size(), image->Pointer());
 		return image;
 	}
 
