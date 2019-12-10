@@ -44,7 +44,7 @@ public:
 		: Stage(stage)
 	{}
 
-    void AddCBSlot(const Microsoft::WRL::ComPtr<ID3D11Device> &device, size_t size)
+    void AddCBSlot(const Microsoft::WRL::ComPtr<ID3D11Device> &device, UINT size)
     {
 		D3D11_BUFFER_DESC desc = { 0 };
 		desc.ByteWidth = size;
@@ -107,13 +107,13 @@ bool ConstantBuffer::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDev
     pReflector->GetDesc(&shaderdesc);
 
     // analize constant buffer
-    for (size_t i = 0; i < shaderdesc.ConstantBuffers; ++i){
+    for (UINT i = 0; i < shaderdesc.ConstantBuffers; ++i){
         auto cb = pReflector->GetConstantBufferByIndex(i);
         D3D11_SHADER_BUFFER_DESC desc;
         cb->GetDesc(&desc);
         OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
         impl->AddCBSlot(pDevice, desc.Size);
-        for (size_t j = 0; j < desc.Variables; ++j){
+        for (UINT j = 0; j < desc.Variables; ++j){
             auto v = cb->GetVariableByIndex(j);
             D3D11_SHADER_VARIABLE_DESC vdesc;
             v->GetDesc(&vdesc);
@@ -122,7 +122,7 @@ bool ConstantBuffer::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDev
         }
     }
 
-	for (size_t i = 0; i < shaderdesc.BoundResources; ++i){
+	for (UINT i = 0; i < shaderdesc.BoundResources; ++i){
 		D3D11_SHADER_INPUT_BIND_DESC desc;
 		pReflector->GetResourceBindingDesc(i, &desc);
 		switch (desc.Type)

@@ -22,7 +22,7 @@
 		int Stride()const{ return m_width*m_pixelBytes; }
 		int Height()const{ return m_height; }
 		unsigned char* Pointer(){ return m_buffer.empty() ? nullptr : &m_buffer[0]; }
-		size_t Size()const{ return m_buffer.size(); }
+		UINT Size()const{ return static_cast<UINT>(m_buffer.size()); }
 	};
 
 	class Factory
