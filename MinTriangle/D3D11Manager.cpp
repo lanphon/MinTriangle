@@ -130,6 +130,8 @@ bool D3D11Manager::Initialize(HWND hWnd
     scDesc.SampleDesc.Quality = 0;
     scDesc.Windowed = TRUE;
 
+    // Here we shall try to replace the D3D11Device to D3D11On12Device
+    // the main question is how to solve the swap-chain.
     HRESULT hr = D3D11CreateDeviceAndSwapChain(
             NULL, // adapter
             dtype,
@@ -143,6 +145,7 @@ bool D3D11Manager::Initialize(HWND hWnd
             &m_pDevice,
             &validFeatureLevel,
             &m_pDeviceContext);
+
     if (FAILED(hr)){
         return false;
     }

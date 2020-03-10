@@ -1,2 +1,5 @@
 /build/
 /build_vs2017_x64/
+.vs/
+out/
+.vscode/

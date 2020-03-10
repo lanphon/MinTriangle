@@ -8,40 +8,6 @@
 #include <vector>
 #include <fstream>
 
-#if 0
-#include <d3dx11.h>
-
-/// <summary>
-/// Helper for compiling shaders with D3DX11
-/// </summary>
-/// <param name="szFileName">full path to shader to compile</param>
-/// <param name="szEntryPoint">entry point of shader</param>
-/// <param name="szShaderModel">shader model to compile for</param>
-/// <param name="ppBlobOut">holds result of compilation</param>
-/// <returns>S_OK for success, or failure code</returns>
-HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3D10Blob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    ID3D10Blob* pErrorBlob = NULL;
-
-    hr = D3DX11CompileFromFileW( szFileName, NULL, NULL, szEntryPoint, szShaderModel, 
-        0, 0, NULL, ppBlobOut, &pErrorBlob, NULL );
-
-    if ( FAILED(hr) )
-    {
-        if (NULL != pErrorBlob)
-        {
-            OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() );
-        }
-    }
-
-    SAFE_RELEASE(pErrorBlob);
-
-    return hr;
-}
-
-#else
 #include <d3dcompiler.h>
 #ifndef D3D_COMPILE_STANDARD_FILE_INCLUDE
 #define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
@@ -144,7 +110,6 @@ HRESULT CompileShaderFromFile
 
     return hr;
 }
-#endif
 
 HRESULT CompileShaderFromSource(const CHAR* szFileName, const CHAR *source, int sourceSize, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3D10Blob** ppBlobOut)
 {
